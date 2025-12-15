@@ -6,7 +6,8 @@ import {
     actualizarUsuario,
     eliminarUsuario,
     loginUsuario,
-    buscarUsuario
+    buscarUsuario,
+    resetPasswordByEmail
 } from "../controllers/UsuarioController.js";
 
 const router = express.Router();
@@ -25,6 +26,9 @@ router.post("/", crearUsuario);
 
 // login
 router.post("/login", loginUsuario);
+
+// actualizar contraseña por email
+router.put("/reset-password", resetPasswordByEmail);
 
 // actualizar usuario
 router.put("/:id", actualizarUsuario);

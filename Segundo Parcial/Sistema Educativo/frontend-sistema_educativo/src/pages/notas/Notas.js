@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Table, Button, Form, Modal, Badge } from 'react-bootstrap';
 import { notaService } from '../../services/notaService';
 import { matriculaService } from '../../services/matriculaService';
 import { docenteService } from '../../services/docenteService';
+import { estudianteService } from '../../services/estudianteService';
 import AlertMessage from '../../components/common/AlertMessage';
 import ConfirmModal from '../../components/common/ConfirmModal';
 
@@ -16,9 +17,12 @@ const Notas = () => {
     const [showModal, setShowModal] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const [showDetalle, setShowDetalle] = useState(false);
+    const [showHistorial, setShowHistorial] = useState(false);
     const [notaSeleccionada, setNotaSeleccionada] = useState(null);
     const [detalleSeleccionado, setDetalleSeleccionado] = useState({ curso: null, estudiante: null, notas: [], parciales: {}, matriculaId: null });
+    const [historial, setHistorial] = useState([]);
     const [agrupadoCursos, setAgrupadoCursos] = useState([]);
+    const [orden, setOrden] = useState('none'); // none | mayor | menor | ultima
     const [filtros, setFiltros] = useState({
         parcial: '',
         tipoEvaluacion: ''
@@ -41,44 +45,7 @@ const Notas = () => {
         { value: 'participacion', label: 'Participación', porcentajeSugerido: 20 }
     ];
 
-    useEffect(() => {
-        cargarNotas();
-        cargarMatriculas();
-        cargarDocentes();
-    }, []);
-
-    const cargarNotas = async (filtrosActuales = {}) => {
-        try {
-            setLoading(true);
-            const data = await notaService.obtenerTodas(filtrosActuales);
-            setNotas(data);
-            setAgrupadoCursos(agruparNotas(data));
-        } catch (error) {
-            mostrarAlerta('danger', 'Error al cargar notas');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const cargarMatriculas = async () => {
-        try {
-            const data = await matriculaService.obtenerTodas();
-            setMatriculas(data);
-        } catch (error) {
-            console.error('Error al cargar matrículas');
-        }
-    };
-
-    const cargarDocentes = async () => {
-        try {
-            const data = await docenteService.obtenerTodos();
-            setDocentes(data);
-        } catch (error) {
-            console.error('Error al cargar docentes');
-        }
-    };
-
-    const agruparNotas = (lista) => {
+    const agruparNotas = useCallback((lista) => {
         const cursosMap = new Map();
 
         lista.forEach((nota) => {
@@ -110,7 +77,8 @@ const Notas = () => {
                         1: { notas: [], suma: 0 },
                         2: { notas: [], suma: 0 },
                         3: { notas: [], suma: 0 }
-                    }
+                    },
+                    lastUpdate: null
                 });
             }
 
@@ -120,11 +88,17 @@ const Notas = () => {
                 estEntry.parciales[parcialKey].notas.push(nota);
                 estEntry.parciales[parcialKey].suma += Number(nota.aporte) || 0;
             }
+            const fecha = nota.fechaEvaluacion ? new Date(nota.fechaEvaluacion) : null;
+            if (fecha) {
+                if (!estEntry.lastUpdate || fecha > estEntry.lastUpdate) {
+                    estEntry.lastUpdate = fecha;
+                }
+            }
         });
 
         // calcular promedios
         const resultado = Array.from(cursosMap.values()).map(curso => {
-            const estudiantes = Array.from(curso.estudiantes.values()).map(est => {
+            let estudiantes = Array.from(curso.estudiantes.values()).map(est => {
                 const p1 = est.parciales[1].suma;
                 const p2 = est.parciales[2].suma;
                 const p3 = est.parciales[3].suma;
@@ -140,11 +114,61 @@ const Notas = () => {
                     estado
                 };
             });
+
+            // aplicar orden
+            if (orden === 'mayor') {
+                estudiantes = estudiantes.sort((a, b) => (b.promedioFinal || 0) - (a.promedioFinal || 0));
+            } else if (orden === 'menor') {
+                estudiantes = estudiantes.sort((a, b) => (a.promedioFinal || 0) - (b.promedioFinal || 0));
+            } else if (orden === 'ultima') {
+                estudiantes = estudiantes.sort((a, b) => {
+                    const fa = a.lastUpdate ? a.lastUpdate.getTime() : 0;
+                    const fb = b.lastUpdate ? b.lastUpdate.getTime() : 0;
+                    return fb - fa; // más reciente primero
+                });
+            }
             return { ...curso, estudiantes };
         });
 
         return resultado;
-    };
+    }, [usuario.idEstudiante, usuario.idUsuario, usuario.tipo, orden]);
+
+    const cargarNotas = useCallback(async (filtrosActuales = {}) => {
+        try {
+            setLoading(true);
+            const data = await notaService.obtenerTodas(filtrosActuales);
+            setNotas(data);
+            setAgrupadoCursos(agruparNotas(data));
+        } catch (error) {
+            mostrarAlerta('danger', 'Error al cargar notas');
+        } finally {
+            setLoading(false);
+        }
+    }, [agruparNotas]);
+
+    const cargarMatriculas = useCallback(async () => {
+        try {
+            const data = await matriculaService.obtenerTodas();
+            setMatriculas(data);
+        } catch (error) {
+            console.error('Error al cargar matrículas');
+        }
+    }, []);
+
+    const cargarDocentes = useCallback(async () => {
+        try {
+            const data = await docenteService.obtenerTodos();
+            setDocentes(data);
+        } catch (error) {
+            console.error('Error al cargar docentes');
+        }
+    }, []);
+
+    useEffect(() => {
+        cargarNotas();
+        cargarMatriculas();
+        cargarDocentes();
+    }, [cargarNotas, cargarMatriculas, cargarDocentes]);
 
     const abrirDetalleNotas = (cursoId, estudianteId) => {
         const curso = agrupadoCursos.find(c => c.idCurso === cursoId);
@@ -173,6 +197,126 @@ const Notas = () => {
     const mostrarAlerta = (variant, message) => {
         setAlert({ show: true, variant, message });
         setTimeout(() => setAlert({ show: false, variant: '', message: '' }), 5000);
+    };
+
+    const handleExportarCSV = () => {
+        const filas = notas.map(n => ({
+            estudiante: n.matricula?.estudiante?.nombreEstudiante || '',
+            curso: n.matricula?.curso?.nrc || '',
+            parcial: n.parcial,
+            tipo: n.tipoEvaluacion,
+            calificacion: n.calificacion,
+            porcentaje: n.porcentaje,
+            aporte: n.aporte,
+            fecha: n.fechaEvaluacion
+        }));
+
+        if (filas.length === 0) {
+            mostrarAlerta('info', 'No hay notas para exportar');
+            return;
+        }
+
+        const encabezados = Object.keys(filas[0]).join(',');
+        const cuerpo = filas.map(f => Object.values(f).join(',')).join('\n');
+        const csv = `${encabezados}\n${cuerpo}`;
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'notas.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    const handleExportarHistorialPDF = () => {
+        if (historial.length === 0) {
+            mostrarAlerta('info', 'No hay historial para exportar');
+            return;
+        }
+
+        const filas = historial.map(item => `
+            <tr>
+                <td>${item.curso?.asignatura?.nombreAsignatura || 'Curso'}</td>
+                <td>${item.curso?.nrc || ''}</td>
+                <td>${item.curso?.periodoAcademico || ''}</td>
+                <td>${item.estado || ''}</td>
+            </tr>
+        `).join('');
+
+        const contenido = `
+            <html>
+                <head>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 24px; }
+                        h2 { margin-top: 0; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+                        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; font-size: 12px; }
+                        th { background: #f5f5f5; }
+                    </style>
+                </head>
+                <body>
+                    <h2>Historial académico</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Curso</th>
+                                <th>NRC</th>
+                                <th>Período</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filas}
+                        </tbody>
+                    </table>
+                </body>
+            </html>
+        `;
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.open();
+        printWindow.document.write(contenido);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+    };
+
+    const cargarHistorial = async () => {
+        let estudianteId = usuario.idEstudiante;
+
+        // fallback: intentar resolver por usuarioId si no está presente
+        if (!estudianteId && usuario.idUsuario) {
+            try {
+                const lista = await estudianteService.obtenerTodos();
+                const encontrado = lista.find(e => e.usuarioId === usuario.idUsuario);
+                if (encontrado) {
+                    estudianteId = encontrado.idEstudiante;
+                    // persistir para próximas veces
+                    const actualizado = { ...usuario, idEstudiante: estudianteId };
+                    localStorage.setItem('usuario', JSON.stringify(actualizado));
+                }
+            } catch (_err) {
+                // si falla, seguiremos con la validación y mensaje de alerta
+            }
+        }
+
+        if (!estudianteId) {
+            mostrarAlerta('warning', 'No se encontró el identificador de estudiante para cargar historial');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const data = await estudianteService.obtenerHistorial(estudianteId);
+            setHistorial(data?.matriculas || []);
+            setShowHistorial(true);
+        } catch (error) {
+            mostrarAlerta('danger', 'Error al cargar historial');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleChangeFiltro = (e) => {
@@ -293,12 +437,6 @@ const Notas = () => {
         }
     };
 
-    const obtenerColorNota = (calificacion) => {
-        if (calificacion >= 14) return 'success';
-        if (calificacion >= 10) return 'warning';
-        return 'danger';
-    };
-
     return (
         <Container fluid>
             <Row className="mb-4">
@@ -325,7 +463,7 @@ const Notas = () => {
 
             <Card className="shadow-sm mb-4">
                 <Card.Body>
-                    <Row>
+                    <Row className="align-items-end">
                         <Col md={3}>
                             <Form.Group>
                                 <Form.Label>Filtrar por Parcial</Form.Label>
@@ -357,6 +495,31 @@ const Notas = () => {
                                     ))}
                                 </Form.Select>
                             </Form.Group>
+                        </Col>
+                        {usuario.tipo === 'estudiante' && (
+                            <Col md={6} className="text-end d-flex justify-content-end gap-2 mt-3 mt-md-0">
+                                <Button variant="outline-primary" onClick={handleExportarCSV} size="sm">
+                                    <i className="bi bi-file-earmark-spreadsheet me-1"></i> Descargar notas (CSV)
+                                </Button>
+                                <Button variant="outline-secondary" onClick={cargarHistorial} size="sm">
+                                    <i className="bi bi-clock-history me-1"></i> Historial académico
+                                </Button>
+                            </Col>
+                        )}
+                        <Col md={12} className="mt-3">
+                            <div className="d-flex align-items-center gap-2">
+                                <Form.Label className="mb-0">Ordenar por:</Form.Label>
+                                <Form.Select
+                                    value={orden}
+                                    onChange={(e) => setOrden(e.target.value)}
+                                    style={{ maxWidth: '240px' }}
+                                >
+                                    <option value="none">Sin orden</option>
+                                    <option value="mayor">Mayor nota (promedio)</option>
+                                    <option value="menor">Menor nota (promedio)</option>
+                                    <option value="ultima">Última actualización</option>
+                                </Form.Select>
+                            </div>
                         </Col>
                     </Row>
                 </Card.Body>
@@ -391,6 +554,7 @@ const Notas = () => {
                                                 <th className="text-center">Parcial 3</th>
                                                 <th className="text-center">Promedio Final</th>
                                                 <th className="text-center">Estado</th>
+                                                <th className="text-center">Última actualización</th>
                                                 <th className="text-center">Notas</th>
                                             </tr>
                                         </thead>
@@ -425,6 +589,9 @@ const Notas = () => {
                                                                 {est.estado}
                                                             </Badge>
                                                         </td>
+                                                    <td className="text-center">
+                                                        {est.lastUpdate ? new Date(est.lastUpdate).toLocaleDateString() : '—'}
+                                                    </td>
                                                     <td className="text-center">
                                                         <Button
                                                             size="sm"
@@ -721,6 +888,48 @@ const Notas = () => {
                 title="Eliminar Nota"
                 message="¿Está seguro de eliminar esta nota?"
             />
+
+            <Modal show={showHistorial} onHide={() => setShowHistorial(false)} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Historial académico</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {historial.length === 0 ? (
+                        <p className="text-muted mb-0">No hay matrículas registradas.</p>
+                    ) : (
+                        <Table responsive hover size="sm">
+                            <thead className="table-light">
+                                <tr>
+                                    <th>Curso</th>
+                                    <th>NRC</th>
+                                    <th>Período</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {historial.map(item => (
+                                    <tr key={item.idMatricula}>
+                                        <td>{item.curso?.asignatura?.nombreAsignatura || 'Curso'}</td>
+                                        <td>{item.curso?.nrc}</td>
+                                        <td>{item.curso?.periodoAcademico}</td>
+                                        <td>{item.estado}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button
+                        variant="outline-primary"
+                        onClick={handleExportarHistorialPDF}
+                        disabled={historial.length === 0}
+                    >
+                        <i className="bi bi-filetype-pdf me-1"></i> Descargar PDF
+                    </Button>
+                    <Button variant="secondary" onClick={() => setShowHistorial(false)}>Cerrar</Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 };

@@ -34,5 +34,10 @@ export const usuarioService = {
     buscar: async (termino) => {
         const response = await api.get(`/usuarios/buscar/${termino}`);
         return response.data;
+    },
+
+    resetPasswordByEmail: async (email, newPassword) => {
+        const response = await api.put('/usuarios/reset-password', { email, newPassword });
+        return response.data;
     }
 };

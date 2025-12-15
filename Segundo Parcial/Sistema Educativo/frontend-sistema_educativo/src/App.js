@@ -10,6 +10,8 @@ import RoleRoute from './components/common/RoleRoute';
 
 // Pages
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Estudiantes from './pages/estudiantes/Estudiantes';
 import Docentes from './pages/docentes/Docentes';
@@ -24,6 +26,8 @@ function App() {
       <Routes>
         {/* Ruta pública */}
         <Route path="/login" element={<Login />} />
+        <Route path="/recuperar" element={<ForgotPassword />} />
+        <Route path="/registro" element={<Register />} />
 
         {/* Rutas privadas */}
         <Route
@@ -44,6 +48,11 @@ function App() {
                     } />
                     <Route path="/estudiantes" element={
                       <RoleRoute allowedRoles={['admin']}>
+                        <Estudiantes />
+                      </RoleRoute>
+                    } />
+                    <Route path="/perfil" element={
+                      <RoleRoute allowedRoles={['estudiante']}>
                         <Estudiantes />
                       </RoleRoute>
                     } />

@@ -209,3 +209,24 @@ export const buscarUsuario = async (req, res) => {
         res.status(500).json({ mensaje: "Error al buscar usuario" });
     }
 };
+
+// reset password by email
+export const resetPasswordByEmail = async (req, res) => {
+    try {
+        const { email, newPassword } = req.body;
+        if (!email || !newPassword) {
+            return res.status(400).json({ mensaje: "Email y nueva contraseña son obligatorios" });
+        }
+        const usuario = await Usuario.findOne({ where: { email } });
+        if (!usuario) {
+            return res.status(404).json({ mensaje: "Usuario no encontrado" });
+        }
+        // TODO: Hashear la contraseña con bcrypt
+        usuario.password = newPassword;
+        await usuario.save();
+        return res.status(200).json({ mensaje: "Contraseña actualizada" });
+    } catch (error) {
+        console.error("Error al actualizar contraseña:", error);
+        res.status(500).json({ mensaje: "Error al actualizar contraseña", error: error.message });
+    }
+};

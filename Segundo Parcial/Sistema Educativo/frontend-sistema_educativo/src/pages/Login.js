@@ -115,8 +115,17 @@ const Login = () => {
                                             variant="link"
                                             className="forgot-link px-0"
                                             type="button"
+                                            onClick={() => navigate('/recuperar')}
                                         >
                                             ¿Olvidó su contraseña?
+                                        </Button>
+                                        <Button
+                                            variant="link"
+                                            className="px-0"
+                                            type="button"
+                                            onClick={() => navigate('/registro')}
+                                        >
+                                            Crear cuenta
                                         </Button>
                                     </div>
                                 </Form>

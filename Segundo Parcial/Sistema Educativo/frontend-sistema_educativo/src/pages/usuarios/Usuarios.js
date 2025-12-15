@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Table, Button, Form, Modal, Badge, InputGroup } from 'react-bootstrap';
 import { usuarioService } from '../../services/usuarioService';
 import AlertMessage from '../../components/common/AlertMessage';
@@ -21,11 +21,7 @@ const Usuarios = () => {
         activo: true
     });
 
-    useEffect(() => {
-        cargarUsuarios();
-    }, []);
-
-    const cargarUsuarios = async () => {
+    const cargarUsuarios = useCallback(async () => {
         try {
             setLoading(true);
             const data = await usuarioService.obtenerTodos();
@@ -35,14 +31,18 @@ const Usuarios = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        cargarUsuarios();
+    }, [cargarUsuarios]);
 
     const mostrarAlerta = (variant, message) => {
         setAlert({ show: true, variant, message });
         setTimeout(() => setAlert({ show: false, variant: '', message: '' }), 5000);
     };
 
-    const handleBuscar = async () => {
+    const handleBuscar = useCallback(async () => {
         if (!busqueda.trim()) {
             cargarUsuarios();
             return;
@@ -54,7 +54,14 @@ const Usuarios = () => {
         } catch (error) {
             mostrarAlerta('danger', 'Error en la búsqueda');
         }
-    };
+    }, [busqueda, cargarUsuarios]);
+
+    useEffect(() => {
+        const t = setTimeout(() => {
+            handleBuscar();
+        }, 300);
+        return () => clearTimeout(t);
+    }, [busqueda, handleBuscar]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;

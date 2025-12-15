@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Table, Button, Form, InputGroup, Modal } from 'react-bootstrap';
 import { docenteService } from '../../services/docenteService';
 import { usuarioService } from '../../services/usuarioService';
@@ -22,12 +22,7 @@ const Docentes = () => {
         usuarioId: ''
     });
 
-    useEffect(() => {
-        cargarDocentes();
-        cargarUsuarios();
-    }, []);
-
-    const cargarDocentes = async () => {
+    const cargarDocentes = useCallback(async () => {
         try {
             setLoading(true);
             const data = await docenteService.obtenerTodos();
@@ -37,23 +32,23 @@ const Docentes = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
-    const cargarUsuarios = async () => {
+    const cargarUsuarios = useCallback(async () => {
         try {
             const data = await usuarioService.obtenerTodos();
             setUsuarios(data.filter(u => u.tipo === 'docente'));
         } catch (error) {
             console.error('Error al cargar usuarios');
         }
-    };
+    }, []);
 
-    const mostrarAlerta = (variant, message) => {
-        setAlert({ show: true, variant, message });
-        setTimeout(() => setAlert({ show: false, variant: '', message: '' }), 5000);
-    };
+    useEffect(() => {
+        cargarDocentes();
+        cargarUsuarios();
+    }, [cargarDocentes, cargarUsuarios]);
 
-    const handleBuscar = async () => {
+    const handleBuscar = useCallback(async () => {
         if (!busqueda.trim()) {
             cargarDocentes();
             return;
@@ -65,7 +60,19 @@ const Docentes = () => {
         } catch (error) {
             mostrarAlerta('danger', 'Error en la búsqueda');
         }
+    }, [busqueda, cargarDocentes]);
+
+    const mostrarAlerta = (variant, message) => {
+        setAlert({ show: true, variant, message });
+        setTimeout(() => setAlert({ show: false, variant: '', message: '' }), 5000);
     };
+
+    useEffect(() => {
+        const t = setTimeout(() => {
+            handleBuscar();
+        }, 300);
+        return () => clearTimeout(t);
+    }, [busqueda, handleBuscar]);
 
     const handleChange = (e) => {
         setFormData({

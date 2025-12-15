@@ -8,7 +8,7 @@ import { Op } from "sequelize";
 // crear estudiante
 export const crearEstudiante = async (req, res) => {
     try {
-        const { cedula, nombreEstudiante, fechaNacimiento, direccion, telefono, usuarioId, usuario } = req.body;
+        const { cedula, nombreEstudiante, fechaNacimiento, direccion, telefono, foto, usuarioId, usuario } = req.body;
 
         if (!cedula || !nombreEstudiante || !fechaNacimiento || !direccion || !telefono) {
             return res.status(400).json({
@@ -79,6 +79,7 @@ export const crearEstudiante = async (req, res) => {
             fechaNacimiento,
             direccion,
             telefono,
+            foto,
             usuarioId: idUsuario,
             estado: "activo"
         });
@@ -145,9 +146,9 @@ export const actualizarEstudiante = async (req, res) => {
             });
         }
 
-        const { cedula, nombreEstudiante, fechaNacimiento, direccion, telefono } = req.body;
+        const { cedula, nombreEstudiante, fechaNacimiento, direccion, telefono, foto } = req.body;
 
-        if (!cedula && !nombreEstudiante && !fechaNacimiento && !direccion && !telefono) {
+        if (!cedula && !nombreEstudiante && !fechaNacimiento && !direccion && !telefono && !foto) {
             return res.status(400).json({
                 mensaje: "Ingresar datos para actualizar"
             });
@@ -168,6 +169,7 @@ export const actualizarEstudiante = async (req, res) => {
         if (fechaNacimiento) estudiante.fechaNacimiento = fechaNacimiento;
         if (direccion) estudiante.direccion = direccion;
         if (telefono) estudiante.telefono = telefono;
+        if (foto !== undefined) estudiante.foto = foto;
 
         await estudiante.save();
 

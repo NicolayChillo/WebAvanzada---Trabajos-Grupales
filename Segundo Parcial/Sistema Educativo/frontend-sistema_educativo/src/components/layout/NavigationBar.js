@@ -5,11 +5,17 @@ import { Navbar, Nav, Container, NavDropdown } from 'react-bootstrap';
 const NavigationBar = () => {
     const navigate = useNavigate();
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+    const displayName = usuario.nombreUsuario || usuario.email || 'Usuario';
+    const displayEmail = usuario.email || 'N/A';
 
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('usuario');
         navigate('/login');
+    };
+
+    const handlePerfil = () => {
+        navigate('/perfil');
     };
 
     return (
@@ -50,9 +56,15 @@ const NavigationBar = () => {
                         )}
                     </Nav>
                     <Nav>
-                        <NavDropdown title={usuario.nombreUsuario || 'Usuario'} id="basic-nav-dropdown" align="end">
+                        <NavDropdown title={displayName} id="basic-nav-dropdown" align="end">
+                            {usuario.tipo === 'estudiante' && (
+                                <NavDropdown.Item onClick={handlePerfil}>
+                                    Mi Perfil
+                                </NavDropdown.Item>
+                            )}
+                            {usuario.tipo === 'estudiante' && <NavDropdown.Divider />}
                             <NavDropdown.Item disabled>
-                                {usuario.email}
+                                {displayEmail}
                             </NavDropdown.Item>
                             <NavDropdown.Divider />
                             <NavDropdown.Item onClick={handleLogout}>
