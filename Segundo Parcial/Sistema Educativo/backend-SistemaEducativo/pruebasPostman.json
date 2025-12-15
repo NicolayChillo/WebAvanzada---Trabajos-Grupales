@@ -1,0 +1,550 @@
+{
+  "info": {
+    "name": "API REST - Sistema Educativo COMPLETO",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Colección completa con todas las rutas del Sistema Educativo"
+  },
+  "item": [
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Crear usuario estudiante",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"juan@example.com\",\n  \"password\": \"Password123\",\n  \"nombreUsuario\": \"Juan Pérez\",\n  \"tipo\": \"estudiante\"\n}"
+            },
+            "url": "http://localhost:3000/api/usuarios"
+          }
+        },
+        {
+          "name": "Crear usuario docente",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"maria@example.com\",\n  \"password\": \"Password123\",\n  \"nombreUsuario\": \"María López\",\n  \"tipo\": \"docente\"\n}"
+            },
+            "url": "http://localhost:3000/api/usuarios"
+          }
+        },
+        {
+          "name": "Listar usuarios",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/usuarios"
+          }
+        },
+        {
+          "name": "Obtener usuario por ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/usuarios/1"
+          }
+        },
+        {
+          "name": "Buscar usuario",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/usuarios/buscar/juan"
+          }
+        },
+        {
+          "name": "Actualizar usuario",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreUsuario\": \"Juan Carlos Pérez\"\n}"
+            },
+            "url": "http://localhost:3000/api/usuarios/1"
+          }
+        },
+        {
+          "name": "Login usuario",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"juan@example.com\",\n  \"password\": \"Password123\"\n}"
+            },
+            "url": "http://localhost:3000/api/usuarios/login"
+          }
+        },
+        {
+          "name": "Eliminar usuario",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/api/usuarios/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Estudiantes",
+      "item": [
+        {
+          "name": "Crear estudiante",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cedula\": \"1726543210\",\n  \"nombreEstudiante\": \"Juan Carlos Pérez García\",\n  \"fechaNacimiento\": \"2000-05-15\",\n  \"direccion\": \"Av. Principal 123\",\n  \"telefono\": \"0987654321\",\n  \"usuarioId\": 1\n}"
+            },
+            "url": "http://localhost:3000/api/estudiantes"
+          }
+        },
+        {
+          "name": "Listar estudiantes",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/estudiantes"
+          }
+        },
+        {
+          "name": "Obtener estudiante por ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/estudiantes/1"
+          }
+        },
+        {
+          "name": "Buscar estudiante",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/estudiantes/buscar/juan"
+          }
+        },
+        {
+          "name": "Obtener notas estudiante",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/estudiantes/1/notas"
+          }
+        },
+        {
+          "name": "Obtener historial académico",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/estudiantes/1/historial"
+          }
+        },
+        {
+          "name": "Actualizar estudiante",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"telefono\": \"0999888777\",\n  \"direccion\": \"Av. Secundaria 456\"\n}"
+            },
+            "url": "http://localhost:3000/api/estudiantes/1"
+          }
+        },
+        {
+          "name": "Eliminar estudiante",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/api/estudiantes/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Asignaturas",
+      "item": [
+        {
+          "name": "Crear asignatura",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigoAsignatura\": \"PROG001\",\n  \"nombreAsignatura\": \"Programación Web\",\n  \"creditos\": 4\n}"
+            },
+            "url": "http://localhost:3000/api/asignaturas"
+          }
+        },
+        {
+          "name": "Listar asignaturas",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/asignaturas"
+          }
+        },
+        {
+          "name": "Obtener asignatura por ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/asignaturas/1"
+          }
+        },
+        {
+          "name": "Buscar asignatura",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/asignaturas/buscar/prog"
+          }
+        },
+        {
+          "name": "Actualizar asignatura",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"creditos\": 5\n}"
+            },
+            "url": "http://localhost:3000/api/asignaturas/1"
+          }
+        },
+        {
+          "name": "Eliminar asignatura",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/api/asignaturas/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Docentes",
+      "item": [
+        {
+          "name": "Crear docente",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuarioId\": 2,\n  \"nombreDocente\": \"María López\",\n  \"titulo\": \"Ingeniera en Sistemas\",\n  \"especialidad\": \"Ingeniería de Software\",\n  \"cargaHoraria\": 20\n}"
+            },
+            "url": "http://localhost:3000/api/docentes"
+          }
+        },
+        {
+          "name": "Listar docentes",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/docentes"
+          }
+        },
+        {
+          "name": "Obtener docente por ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/docentes/1"
+          }
+        },
+        {
+          "name": "Buscar docente",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/docentes/buscar/maria"
+          }
+        },
+        {
+          "name": "Actualizar docente",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cargaHoraria\": 25\n}"
+            },
+            "url": "http://localhost:3000/api/docentes/1"
+          }
+        },
+        {
+          "name": "Asignar materia a docente",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cursoId\": 1\n}"
+            },
+            "url": "http://localhost:3000/api/docentes/1/asignar-materia"
+          }
+        },
+        {
+          "name": "Eliminar docente",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/api/docentes/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cursos",
+      "item": [
+        {
+          "name": "Crear curso",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nrc\": \"12345\",\n  \"periodoAcademico\": \"2024-1\",\n  \"cupoMaximo\": 30,\n  \"asignaturaId\": 1,\n  \"docenteId\": 1\n}"
+            },
+            "url": "http://localhost:3000/api/cursos"
+          }
+        },
+        {
+          "name": "Listar cursos",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/cursos"
+          }
+        },
+        {
+          "name": "Obtener curso por ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/cursos/1"
+          }
+        },
+        {
+          "name": "Buscar curso",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/cursos/buscar/12345"
+          }
+        },
+        {
+          "name": "Obtener cursos por período",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/cursos/periodo/2024-1"
+          }
+        },
+        {
+          "name": "Obtener estudiantes del curso",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/cursos/1/estudiantes"
+          }
+        },
+        {
+          "name": "Actualizar curso",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cupoMaximo\": 35\n}"
+            },
+            "url": "http://localhost:3000/api/cursos/1"
+          }
+        },
+        {
+          "name": "Eliminar curso",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/api/cursos/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Matrículas",
+      "item": [
+        {
+          "name": "Matricular estudiante",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estudianteId\": 1,\n  \"cursoId\": 1,\n  \"fechaMatricula\": \"2024-01-15\"\n}"
+            },
+            "url": "http://localhost:3000/api/matriculas"
+          }
+        },
+        {
+          "name": "Listar matrículas",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/matriculas"
+          }
+        },
+        {
+          "name": "Obtener matrícula por ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/matriculas/1"
+          }
+        },
+        {
+          "name": "Obtener matrículas de estudiante",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/matriculas/estudiante/1"
+          }
+        },
+        {
+          "name": "Obtener matrículas de curso",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/matriculas/curso/1"
+          }
+        },
+        {
+          "name": "Resumen matrículas por curso",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/matriculas/curso/1/resumen"
+          }
+        },
+        {
+          "name": "Actualizar matrícula",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fechaMatricula\": \"2024-01-20\"\n}"
+            },
+            "url": "http://localhost:3000/api/matriculas/1"
+          }
+        },
+        {
+          "name": "Eliminar matrícula",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/api/matriculas/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notas",
+      "item": [
+        {
+          "name": "Registrar nota - Tarea",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"matriculaId\": 1,\n  \"parcial\": 1,\n  \"tipoEvaluacion\": \"tarea\",\n  \"calificacion\": 18,\n  \"porcentaje\": 20,\n  \"aporte\": 12.6,\n  \"docenteId\": 1,\n  \"fechaEvaluacion\": \"2024-02-15\"\n}"
+            },
+            "url": "http://localhost:3000/api/notas"
+          }
+        },
+        {
+          "name": "Registrar nota - Examen",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"matriculaId\": 1,\n  \"parcial\": 1,\n  \"tipoEvaluacion\": \"examen\",\n  \"calificacion\": 16,\n  \"porcentaje\": 40,\n  \"aporte\": 11.2,\n  \"docenteId\": 1,\n  \"fechaEvaluacion\": \"2024-03-01\"\n}"
+            },
+            "url": "http://localhost:3000/api/notas"
+          }
+        },
+        {
+          "name": "Registrar nota - Proyecto",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"matriculaId\": 1,\n  \"parcial\": 1,\n  \"tipoEvaluacion\": \"proyecto\",\n  \"calificacion\": 19,\n  \"porcentaje\": 20,\n  \"aporte\": 13.3,\n  \"docenteId\": 1,\n  \"fechaEvaluacion\": \"2024-03-10\"\n}"
+            },
+            "url": "http://localhost:3000/api/notas"
+          }
+        },
+        {
+          "name": "Registrar nota - Participación",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"matriculaId\": 1,\n  \"parcial\": 1,\n  \"tipoEvaluacion\": \"participacion\",\n  \"calificacion\": 20,\n  \"porcentaje\": 20,\n  \"aporte\": 14,\n  \"docenteId\": 1,\n  \"fechaEvaluacion\": \"2024-03-15\"\n}"
+            },
+            "url": "http://localhost:3000/api/notas"
+          }
+        },
+        {
+          "name": "Listar notas",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/notas"
+          }
+        },
+        {
+          "name": "Obtener nota por ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/notas/1"
+          }
+        },
+        {
+          "name": "Calcular parcial",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/notas/1/parcial/1/calcular"
+          }
+        },
+        {
+          "name": "Promedio semestre",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/notas/1/promedio-semestre"
+          }
+        },
+        {
+          "name": "Estado académico estudiante",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/notas/estudiante/1/estado"
+          }
+        },
+        {
+          "name": "Estado académico por curso",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/notas/estudiante/1/curso/1/estado"
+          }
+        },
+        {
+          "name": "Reporte académico",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/notas/estudiante/1/reporte"
+          }
+        },
+        {
+          "name": "Actualizar nota",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"calificacion\": 19,\n  \"tipoEvaluacion\": \"tarea\"\n}"
+            },
+            "url": "http://localhost:3000/api/notas/1"
+          }
+        },
+        {
+          "name": "Eliminar nota",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/api/notas/1"
+          }
+        }
+      ]
+    }
+  ]
+}
