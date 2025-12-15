@@ -33,7 +33,8 @@ export const crearUsuario = async (req, res) => {
             email,
             password,
             nombreUsuario,
-            tipo
+            tipo,
+            activo: true
         });
 
         res.status(201).json(nuevoUsuario);
@@ -89,9 +90,9 @@ export const actualizarUsuario = async (req, res) => {
             });
         }
 
-        const { email, password, nombreUsuario, tipo } = req.body;
+        const { email, password, nombreUsuario, tipo, activo } = req.body;
 
-        if (!email && !password && !nombreUsuario && !tipo) {
+        if (!email && !password && !nombreUsuario && !tipo && activo === undefined) {
             return res.status(400).json({
                 mensaje: "Ingresar datos para actualizar"
             });
@@ -111,6 +112,7 @@ export const actualizarUsuario = async (req, res) => {
         if (password) usuario.password = password; // TODO: hashear con bcrypt
         if (nombreUsuario) usuario.nombreUsuario = nombreUsuario;
         if (tipo) usuario.tipo = tipo;
+        if (activo !== undefined) usuario.activo = activo;
 
         await usuario.save();
 

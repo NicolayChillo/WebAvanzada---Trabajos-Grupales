@@ -1,6 +1,7 @@
 import { Matricula } from "../models/Matricula.js";
 import { Estudiante } from "../models/Estudiante.js";
 import { Curso } from "../models/Curso.js";
+import { Asignatura } from "../models/Asignatura.js";
 import { Nota } from "../models/Nota.js";
 import * as MatriculaService from "../services/MatriculaService.js";
 
@@ -74,7 +75,8 @@ export const obtenerMatriculas = async (req, res) => {
             {
                 model: Curso,
                 as: "curso",
-                where: periodo ? { periodoAcademico: periodo } : undefined
+                where: periodo ? { periodoAcademico: periodo } : undefined,
+                include: [{ model: Asignatura, as: "asignatura" }]
             }
         ];
 
@@ -97,7 +99,7 @@ export const obtenerMatricula = async (req, res) => {
         const matricula = await Matricula.findByPk(req.params.id, {
             include: [
                 { model: Estudiante, as: "estudiante" },
-                { model: Curso, as: "curso" },
+                { model: Curso, as: "curso", include: [{ model: Asignatura, as: "asignatura" }] },
                 { model: Nota, as: "notas" }
             ]
         });
@@ -203,7 +205,7 @@ export const obtenerMatriculasEstudiante = async (req, res) => {
 
         const matriculas = await Matricula.findAll({
             where: { estudianteId: req.params.estudianteId },
-            include: [{ model: Curso, as: "curso" }]
+            include: [{ model: Curso, as: "curso", include: [{ model: Asignatura, as: "asignatura" }] }]
         });
 
         res.status(200).json(matriculas);
@@ -226,7 +228,10 @@ export const obtenerMatriculasCurso = async (req, res) => {
 
         const matriculas = await Matricula.findAll({
             where: { cursoId: req.params.cursoId },
-            include: [{ model: Estudiante, as: "estudiante" }]
+            include: [
+                { model: Estudiante, as: "estudiante" },
+                { model: Curso, as: "curso", include: [{ model: Asignatura, as: "asignatura" }] }
+            ]
         });
 
         res.status(200).json(matriculas);

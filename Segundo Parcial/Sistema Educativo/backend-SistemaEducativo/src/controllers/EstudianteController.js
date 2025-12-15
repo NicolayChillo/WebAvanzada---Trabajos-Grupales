@@ -8,11 +8,11 @@ import { Op } from "sequelize";
 // crear estudiante
 export const crearEstudiante = async (req, res) => {
     try {
-        const { cedula, nombreEstudiante, fechaNacimiento, direccion, telefono, usuarioId } = req.body;
+        const { cedula, nombreEstudiante, fechaNacimiento, direccion, telefono, usuarioId, usuario } = req.body;
 
-        if (!cedula || !nombreEstudiante || !fechaNacimiento || !direccion || !telefono || !usuarioId) {
+        if (!cedula || !nombreEstudiante || !fechaNacimiento || !direccion || !telefono) {
             return res.status(400).json({
-                mensaje: "Cédula, nombreEstudiante, fechaNacimiento, direccion, telefono y usuarioId son obligatorios"
+                mensaje: "Cédula, nombreEstudiante, fechaNacimiento, direccion y telefono son obligatorios"
             });
         }
 
@@ -24,12 +24,53 @@ export const crearEstudiante = async (req, res) => {
             });
         }
 
-        // Validar que usuario exista
-        const usuario = await Usuario.findByPk(usuarioId);
-        if (!usuario) {
-            return res.status(404).json({
-                mensaje: "Usuario no encontrado"
+        let idUsuario = usuarioId;
+
+        // Si viene objeto usuario, crear el usuario primero
+        if (usuario) {
+            const { email, nombreUsuario, password, tipo } = usuario;
+            
+            if (!email || !nombreUsuario || !password) {
+                return res.status(400).json({
+                    mensaje: "Email, nombreUsuario y password son obligatorios para crear el usuario"
+                });
+            }
+
+            // Validar que el email y nombreUsuario no existan
+            const usuarioExistente = await Usuario.findOne({
+                where: {
+                    [Op.or]: [{ email }, { nombreUsuario }]
+                }
             });
+
+            if (usuarioExistente) {
+                return res.status(400).json({
+                    mensaje: "El email o nombre de usuario ya está registrado"
+                });
+            }
+
+            // Crear el usuario
+            const nuevoUsuario = await Usuario.create({
+                email,
+                nombreUsuario,
+                password, // TODO: hashear con bcrypt
+                tipo: tipo || 'estudiante',
+                activo: true
+            });
+
+            idUsuario = nuevoUsuario.idUsuario;
+        } else if (!usuarioId) {
+            return res.status(400).json({
+                mensaje: "Debe proporcionar usuarioId o datos de usuario"
+            });
+        } else {
+            // Validar que usuario exista
+            const usuarioExiste = await Usuario.findByPk(usuarioId);
+            if (!usuarioExiste) {
+                return res.status(404).json({
+                    mensaje: "Usuario no encontrado"
+                });
+            }
         }
 
         const nuevoEstudiante = await Estudiante.create({
@@ -38,15 +79,20 @@ export const crearEstudiante = async (req, res) => {
             fechaNacimiento,
             direccion,
             telefono,
-            usuarioId,
+            usuarioId: idUsuario,
             estado: "activo"
         });
 
-        res.status(201).json(nuevoEstudiante);
+        // Obtener el estudiante con el usuario incluido
+        const estudianteCompleto = await Estudiante.findByPk(nuevoEstudiante.idEstudiante, {
+            include: [{ model: Usuario, attributes: { exclude: ["password"] } }]
+        });
+
+        res.status(201).json(estudianteCompleto);
 
     } catch (error) {
         console.error("Error al crear estudiante:", error);
-        res.status(500).json({ mensaje: "Error al crear estudiante", error: error.message });
+        res.status(500).json({ mensaje: "Error al crear estudiante", error: error.message, stack: error.stack });
     }
 };
 

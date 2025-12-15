@@ -7,7 +7,8 @@ import {
     eliminarCurso,
     obtenerEstudiantesCurso,
     obtenerCursosPorPeriodo,
-    buscarCurso
+    buscarCurso,
+    obtenerPromediosCurso
 } from "../controllers/CursoController.js";
 
 const router = express.Router();
@@ -26,6 +27,9 @@ router.get("/:id", obtenerCurso);
 
 // obtener estudiantes de un curso
 router.get("/:id/estudiantes", obtenerEstudiantesCurso);
+
+// obtener promedios de un curso
+router.get("/:id/promedios", obtenerPromediosCurso);
 
 // crear nuevo curso
 router.post("/", crearCurso);

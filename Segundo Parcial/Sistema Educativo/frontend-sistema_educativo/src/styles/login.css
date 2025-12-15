@@ -1,0 +1,155 @@
+:root {
+    --primary-50: #eef4ff;
+    --primary-200: #c7d7ff;
+    --primary-300: #9fbaff;
+    --primary-500: #0d6efd;
+}
+
+.bg-primary-50 {
+    background: var(--primary-50);
+}
+
+.bg-primary-reverse {
+    background: linear-gradient(180deg, rgba(13, 110, 253, 0.08) 0%, rgba(13, 110, 253, 0) 55%);
+}
+
+.text-primary-500 {
+    color: var(--primary-500) !important;
+}
+
+.text-4xl {
+    font-size: 2.25rem;
+    line-height: 1.2;
+}
+
+.hero-subtitle {
+    color: #4c566a;
+    margin-top: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.font-light {
+    font-weight: 300;
+}
+
+.flex {
+    display: flex;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.align-items-start {
+    align-items: flex-start;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.w-full {
+    width: 100%;
+}
+
+.w-screen {
+    width: 100vw;
+}
+
+.w-6rem {
+    width: 6rem;
+}
+
+.h-screen {
+    min-height: 100vh;
+}
+
+.px-6 {
+    padding-left: 3rem;
+    padding-right: 3rem;
+}
+
+.mt-8 {
+    margin-top: 3rem;
+}
+
+.z-5 {
+    position: relative;
+    z-index: 5;
+}
+
+.login-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(13, 110, 253, 0.12);
+    padding: 2.75rem 2.5rem;
+}
+
+.login-btn {
+    background: linear-gradient(90deg, #0d6efd 0%, #2563eb 100%);
+    border: none;
+    transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(13, 110, 253, 0.25);
+}
+
+.forgot-link {
+    font-weight: 600;
+    color: #0d6efd;
+}
+
+.forgot-link:hover {
+    color: #0b5ed7;
+}
+
+.absolute {
+    position: absolute;
+}
+
+.bottom-0 {
+    bottom: 0;
+}
+
+.p-input-icon-right {
+    position: relative;
+    display: inline-flex;
+    width: 100%;
+    align-items: center;
+}
+
+.p-input-icon-right i {
+    position: absolute;
+    right: 12px;
+    color: #6c757d;
+    pointer-events: none;
+}
+
+.p-input-icon-right .form-control {
+    padding-right: 2.5rem;
+}
+
+.secondary-button {
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.secondary-button:hover {
+    text-decoration: underline;
+}
+
+@media (min-width: 992px) {
+    .lg\:w-5 {
+        width: 50%;
+    }
+
+    .lg\:w-8 {
+        width: 66.6666%;
+    }
+}

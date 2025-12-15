@@ -2,6 +2,7 @@ import { Nota } from "../models/Nota.js";
 import { Matricula } from "../models/Matricula.js";
 import { Docente } from "../models/Docente.js";
 import { Curso } from "../models/Curso.js";
+import { Estudiante } from "../models/Estudiante.js";
 import * as NotaService from "../services/NotaService.js";
 
 // crear nota
@@ -114,7 +115,10 @@ export const obtenerNotas = async (req, res) => {
                     model: Matricula,
                     as: "matricula",
                     where: estudianteId ? { estudianteId } : undefined,
-                    include: [{ model: Curso, as: "curso", where: cursoId ? { idCurso: cursoId } : undefined }]
+                    include: [
+                        { model: Estudiante, as: "estudiante" },
+                        { model: Curso, as: "curso", where: cursoId ? { idCurso: cursoId } : undefined }
+                    ]
                 },
                 { model: Docente, as: "docente" }
             ]
@@ -133,7 +137,14 @@ export const obtenerNota = async (req, res) => {
     try {
         const nota = await Nota.findByPk(req.params.id, {
             include: [
-                { model: Matricula, as: "matricula", include: [{ model: Curso, as: "curso" }] },
+                { 
+                    model: Matricula, 
+                    as: "matricula", 
+                    include: [
+                        { model: Estudiante, as: "estudiante" },
+                        { model: Curso, as: "curso" }
+                    ]
+                },
                 { model: Docente, as: "docente" }
             ]
         });

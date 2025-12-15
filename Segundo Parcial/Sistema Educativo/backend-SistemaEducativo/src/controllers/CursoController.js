@@ -3,6 +3,7 @@ import { Asignatura } from "../models/Asignatura.js";
 import { Docente } from "../models/Docente.js";
 import { Matricula } from "../models/Matricula.js";
 import { Estudiante } from "../models/Estudiante.js";
+import { Nota } from "../models/Nota.js";
 import { Op } from "sequelize";
 
 // crear curso
@@ -249,5 +250,66 @@ export const buscarCurso = async (req, res) => {
     } catch (error) {
         console.error("Error al buscar curso:", error);
         res.status(500).json({ mensaje: "Error al buscar curso" });
+    }
+};
+
+// obtener promedios de estudiantes en un curso
+export const obtenerPromediosCurso = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const curso = await Curso.findByPk(id, {
+            include: [
+                {
+                    model: Matricula,
+                    as: "matriculas",
+                    include: [
+                        { model: Estudiante, as: "estudiante" },
+                        { model: Nota, as: "notas" }
+                    ]
+                }
+            ]
+        });
+
+        if (!curso) {
+            return res.status(404).json({ mensaje: "Curso no encontrado" });
+        }
+
+        const resultados = curso.matriculas.map(matricula => {
+            const estudiante = matricula.estudiante;
+            const notas = matricula.notas || [];
+
+            // Calcular promedio por parcial
+            const calcularPromedioParcial = (parcial) => {
+                const notasParcial = notas.filter(n => n.parcial === parcial);
+                if (notasParcial.length === 0) return 0;
+                const suma = notasParcial.reduce((acc, n) => {
+                    const aporte = Number(n.aporte) || 0; // protege contra null/undefined
+                    return acc + aporte;
+                }, 0);
+                return suma;
+            };
+
+            const promedioParcial1 = calcularPromedioParcial(1);
+            const promedioParcial2 = calcularPromedioParcial(2);
+            const promedioParcial3 = calcularPromedioParcial(3);
+            const promedioFinal = (promedioParcial1 + promedioParcial2 + promedioParcial3) / 3;
+
+            return {
+                idEstudiante: estudiante.idEstudiante,
+                nombreEstudiante: estudiante.nombreEstudiante,
+                cedula: estudiante.cedula,
+                promedioParcial1,
+                promedioParcial2,
+                promedioParcial3,
+                promedioFinal
+            };
+        });
+
+        res.status(200).json(resultados);
+
+    } catch (error) {
+        console.error("Error al obtener promedios del curso:", error);
+        res.status(500).json({ mensaje: "Error al obtener promedios del curso", error: error.message });
     }
 };

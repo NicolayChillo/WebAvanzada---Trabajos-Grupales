@@ -30,8 +30,14 @@ export const Usuario = sequelize.define(
             },
         tipo: 
             { 
-                type: DataTypes.ENUM("estudiante", "docente"), 
+                type: DataTypes.ENUM("estudiante", "docente", "admin"), 
                 allowNull: false 
+            },
+        activo: 
+            { 
+                type: DataTypes.BOOLEAN, 
+                allowNull: false,
+                defaultValue: true 
             }
     },
     {
