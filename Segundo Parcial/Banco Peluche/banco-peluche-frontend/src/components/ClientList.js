@@ -24,7 +24,7 @@ export default function ClientList({ clients, onRefresh, onEdit }) {
                 <small>{c.email}</small>
               </div>
               <div className="cliente-actions">
-                <Link className="btn" to={`/cliente/${c._id}`}>Ver</Link>
+                <Link className="btn" to={`/cliente/${c._id}`}>Ver Detalle</Link>
                 <button className="btn" onClick={() => onEdit && onEdit(c._id)}>Editar</button>
                 <button className="btn danger" onClick={() => handleDelete(c._id)}>Eliminar</button>
               </div>

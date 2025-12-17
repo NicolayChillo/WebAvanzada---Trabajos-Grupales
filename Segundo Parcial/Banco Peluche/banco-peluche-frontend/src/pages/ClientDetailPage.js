@@ -26,41 +26,79 @@ export default function ClientDetailPage() {
   if (!cliente) return <div className="container"><p>Cargando cliente...</p></div>;
 
   return (
-    <div className="container">
-      <header>
-        <h1>Detalle cliente</h1>
+    <div className="container detail-page">
+      <header className="page-head">
+        <div>
+          <p className="eyebrow">Cliente #{id}</p>
+          <h1>Detalle del cliente</h1>
+          <p className="muted">Revisa sus datos personales y el resumen financiero en un vistazo.</p>
+        </div>
+        <div className="pill-row">
+          <span className="pill">{cliente.email}</span>
+          <span className="pill">{cliente.telefono || 'Sin teléfono'}</span>
+        </div>
       </header>
 
-      <main>
-        <div className="card detail">
-          <h3>{cliente.nombre}</h3>
-          <p><b>Email:</b> {cliente.email}</p>
-          <p><b>Teléfono:</b> {cliente.telefono}</p>
-          <p><b>Dirección:</b> {cliente.direccion}</p>
-          <h4>Valores financieros</h4>
-          <p>Saldo anterior: {cliente.saldoAnterior}</p>
-          <p>Monto compras: {cliente.montoCompras}</p>
-          <p>Pago realizado: {cliente.pagoRealizado}</p>
-
-          <h4>Resultado</h4>
-          {cliente.resultado ? (
+      <main className="detail-layout">
+        <section className="card detail">
+          <div className="detail-hero">
             <div>
-              <p>Saldo actual: {cliente.resultado.saldoActual}</p>
-              <p>Interés: {cliente.resultado.interes}</p>
-              <p>Multa: {cliente.resultado.multa}</p>
-              <p>Pago mínimo: {cliente.resultado.pagoMinimo}</p>
-              <p>Es moroso: {String(cliente.resultado.esMoroso)}</p>
+              <p className="eyebrow">Nombre completo</p>
+              <h2>{cliente.nombre}</h2>
+              <p className="muted">{cliente.direccion || 'Sin dirección registrada'}</p>
             </div>
-          ) : (
-            <p>No hay cálculo disponible.</p>
+            <div className="pill status">{cliente.resultado?.esMoroso ? 'Moroso' : 'Al día'}</div>
+          </div>
+
+          <div className="detail-grid">
+            <div className="metric-card">
+              <p className="label">Saldo anterior</p>
+              <p className="value">{cliente.saldoAnterior}</p>
+            </div>
+            <div className="metric-card">
+              <p className="label">Monto compras</p>
+              <p className="value">{cliente.montoCompras}</p>
+            </div>
+            <div className="metric-card">
+              <p className="label">Pago realizado</p>
+              <p className="value">{cliente.pagoRealizado}</p>
+            </div>
+            {cliente.resultado && (
+              <>
+                <div className="metric-card highlight">
+                  <p className="label">Saldo actual</p>
+                  <p className="value">{cliente.resultado.saldoActual}</p>
+                </div>
+                <div className="metric-card">
+                  <p className="label">Interés</p>
+                  <p className="value">{cliente.resultado.interes}</p>
+                </div>
+                <div className="metric-card">
+                  <p className="label">Multa</p>
+                  <p className="value">{cliente.resultado.multa}</p>
+                </div>
+                <div className="metric-card">
+                  <p className="label">Pago mínimo</p>
+                  <p className="value">{cliente.resultado.pagoMinimo}</p>
+                </div>
+              </>
+            )}
+          </div>
+
+          {!cliente.resultado && (
+            <div className="empty-state">
+              <p className="muted">No hay cálculo disponible todavía.</p>
+            </div>
           )}
 
-          <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-            <button className="btn" onClick={downloadPDF}>Exportar PDF</button>
-            <button className="btn" onClick={downloadExcel}>Exportar Excel</button>
-            <button className="btn" onClick={() => navigate(-1)}>Volver</button>
+          <div className="actions-bar">
+            <button className="btn secondary" onClick={() => navigate(-1)}>Volver</button>
+            <div className="actions-gap">
+              <button className="btn primary" onClick={downloadPDF}>Exportar PDF</button>
+              <button className="btn" onClick={downloadExcel}>Exportar Excel</button>
+            </div>
           </div>
-        </div>
+        </section>
       </main>
     </div>
   );

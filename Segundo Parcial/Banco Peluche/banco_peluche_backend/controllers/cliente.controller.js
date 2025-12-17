@@ -12,6 +12,14 @@ const isValidEmail = (email) => {
   return re.test(String(email));
 };
 
+const formatMoney = (val) => {
+  const num = Number(val);
+  if (Number.isNaN(num)) return '-';
+  return `$${num.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
+
+const formatBool = (v) => (v ? 'Sí' : 'No');
+
 // calcular datos del cliente
 export const calcular = async (req, res) => {
   try {
@@ -232,41 +240,59 @@ export const exportPDF = async (req, res) => {
     // Pipe PDF al response
     doc.pipe(res);
 
+    const accent = '#5b8def';
+    const muted = '#6b7280';
+
+    const addTitle = (title) => {
+      doc.moveDown(0.6);
+      doc.fillColor('#111').fontSize(14).text(title, { underline: false });
+      doc.moveDown(0.2);
+    };
+
+    const addRow = (label, value) => {
+      const safeVal = value ?? '-';
+      const y = doc.y;
+      doc.fillColor(muted).fontSize(10).text(label, 40, y, { width: 150 });
+      doc.fillColor('#111').fontSize(12).text(String(safeVal), 200, y, { width: 340 });
+      doc.moveDown(0.3);
+    };
+
     // Cabecera
-    doc.fontSize(18).text('Detalle Cliente - Banco Peluche', { align: 'center' });
-    doc.moveDown();
+    doc.fillColor(accent).fontSize(10).text('Banco Peluche', { align: 'right' });
+    doc.fillColor('#111').fontSize(20).text('Ficha del cliente', { align: 'left' });
+    doc.moveDown(0.4);
+    doc.fillColor(muted).fontSize(11).text('Resumen generado automáticamente con los datos registrados.');
+    doc.moveDown(0.8);
+    doc.moveTo(40, doc.y).lineTo(555, doc.y).strokeColor(accent).lineWidth(1).stroke();
+    doc.moveDown(0.8);
 
-    // Datos personales
-    doc.fontSize(12).text(`ID: ${cliente._id}`);
-    doc.text(`Nombre: ${cliente.nombre || ''}`);
-    doc.text(`Email: ${cliente.email || ''}`);
-    doc.text(`Teléfono: ${cliente.telefono || ''}`);
-    doc.text(`Dirección: ${cliente.direccion || ''}`);
-    doc.moveDown();
+    addTitle('Datos personales');
+    addRow('ID', cliente._id);
+    addRow('Nombre', cliente.nombre || '-');
+    addRow('Email', cliente.email || '-');
+    addRow('Teléfono', cliente.telefono || '-');
+    addRow('Dirección', cliente.direccion || '-');
 
-    // Datos financieros
-    doc.fontSize(14).text('Datos financieros');
-    doc.fontSize(12).text(`Saldo anterior: ${cliente.saldoAnterior ?? ''}`);
-    doc.text(`Monto compras: ${cliente.montoCompras ?? ''}`);
-    doc.text(`Pago realizado: ${cliente.pagoRealizado ?? ''}`);
-    doc.moveDown();
+    addTitle('Datos financieros');
+    addRow('Saldo anterior', formatMoney(cliente.saldoAnterior));
+    addRow('Monto compras', formatMoney(cliente.montoCompras));
+    addRow('Pago realizado', formatMoney(cliente.pagoRealizado));
 
-    // Resultado de cálculo (si existe)
-    doc.fontSize(14).text('Resultado del cálculo');
+    addTitle('Resultado del cálculo');
     if (cliente.resultado) {
-      doc.fontSize(12).text(`Saldo base: ${cliente.resultado.saldoBase ?? ''}`);
-      doc.text(`Interés: ${cliente.resultado.interes ?? ''}`);
-      doc.text(`Multa: ${cliente.resultado.multa ?? ''}`);
-      doc.text(`Saldo actual: ${cliente.resultado.saldoActual ?? ''}`);
-      doc.text(`Pago mínimo: ${cliente.resultado.pagoMinimo ?? ''}`);
-      doc.text(`Pago sin intereses: ${cliente.resultado.pagoNoIntereses ?? ''}`);
-      doc.text(`Es moroso: ${cliente.resultado.esMoroso ?? cliente.esMoroso}`);
+      addRow('Saldo base', formatMoney(cliente.resultado.saldoBase));
+      addRow('Interés', formatMoney(cliente.resultado.interes));
+      addRow('Multa', formatMoney(cliente.resultado.multa));
+      addRow('Saldo actual', formatMoney(cliente.resultado.saldoActual));
+      addRow('Pago mínimo', formatMoney(cliente.resultado.pagoMinimo));
+      addRow('Pago sin intereses', formatMoney(cliente.resultado.pagoNoIntereses));
+      addRow('Es moroso', formatBool(cliente.resultado.esMoroso ?? cliente.esMoroso));
     } else {
-      doc.fontSize(12).text('No hay cálculo disponible para este cliente.');
+      addRow('Resultado', 'No hay cálculo disponible.');
     }
 
-    doc.moveDown();
-    doc.fontSize(10).text('Generado por Banco Peluche', { align: 'center' });
+    doc.moveDown(1);
+    doc.fillColor(muted).fontSize(10).text('Generado por Banco Peluche', { align: 'center' });
 
     doc.end();
   } catch (err) {
@@ -288,30 +314,36 @@ export const exportXLSX = async (req, res) => {
     const xlsxModule = await import('xlsx');
     const XLSX = xlsxModule.default || xlsxModule;
     const data = [
-      ['Campo', 'Valor'],
+      ['Ficha del cliente', 'Banco Peluche'],
+      ['Fecha de generación', new Date().toLocaleString('es-MX')],
+      [''],
+      ['Datos personales', ''],
       ['ID', cliente._id.toString()],
-      ['Nombre', cliente.nombre || ''],
-      ['Email', cliente.email || ''],
-      ['Teléfono', cliente.telefono || ''],
-      ['Dirección', cliente.direccion || ''],
-      ['Saldo anterior', cliente.saldoAnterior ?? ''],
-      ['Monto compras', cliente.montoCompras ?? ''],
-      ['Pago realizado', cliente.pagoRealizado ?? '']
+      ['Nombre', cliente.nombre || '-'],
+      ['Email', cliente.email || '-'],
+      ['Teléfono', cliente.telefono || '-'],
+      ['Dirección', cliente.direccion || '-'],
+      [''],
+      ['Datos financieros', ''],
+      ['Saldo anterior', formatMoney(cliente.saldoAnterior)],
+      ['Monto compras', formatMoney(cliente.montoCompras)],
+      ['Pago realizado', formatMoney(cliente.pagoRealizado)]
     ];
 
     if (cliente.resultado) {
-      data.push([''], ['Resultado', '']);
-      data.push(['Saldo base', cliente.resultado.saldoBase ?? '']);
-      data.push(['Interés', cliente.resultado.interes ?? '']);
-      data.push(['Multa', cliente.resultado.multa ?? '']);
-      data.push(['Saldo actual', cliente.resultado.saldoActual ?? '']);
-      data.push(['Pago mínimo', cliente.resultado.pagoMinimo ?? '']);
-      data.push(['Pago sin intereses', cliente.resultado.pagoNoIntereses ?? '']);
-      data.push(['Es moroso', cliente.resultado.esMoroso ?? cliente.esMoroso]);
+      data.push([''], ['Resultado del cálculo', '']);
+      data.push(['Saldo base', formatMoney(cliente.resultado.saldoBase)]);
+      data.push(['Interés', formatMoney(cliente.resultado.interes)]);
+      data.push(['Multa', formatMoney(cliente.resultado.multa)]);
+      data.push(['Saldo actual', formatMoney(cliente.resultado.saldoActual)]);
+      data.push(['Pago mínimo', formatMoney(cliente.resultado.pagoMinimo)]);
+      data.push(['Pago sin intereses', formatMoney(cliente.resultado.pagoNoIntereses)]);
+      data.push(['Es moroso', formatBool(cliente.resultado.esMoroso ?? cliente.esMoroso)]);
     }
 
     const ws = XLSX.utils.aoa_to_sheet(data);
     const wb = XLSX.utils.book_new();
+    ws['!cols'] = [{ wch: 22 }, { wch: 28 }];
     XLSX.utils.book_append_sheet(wb, ws, 'Cliente');
 
     const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
