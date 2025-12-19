@@ -8,11 +8,12 @@ export default function ClientDetailPage() {
   const [cliente, setCliente] = useState(null);
 
   useEffect(() => {
-    (async () => {
+    const loadClient = async () => {
       if (!id) return;
       const data = await getClient(id);
       setCliente(data);
-    })();
+    };
+    loadClient();
   }, [id]);
 
   const downloadPDF = () => {
@@ -21,6 +22,11 @@ export default function ClientDetailPage() {
 
   const downloadExcel = () => {
     window.open(exportXLSXUrl(id), '_blank');
+  };
+
+  const formatNumber = (num) => {
+    const n = Number(num);
+    return isNaN(n) ? '0.00' : n.toFixed(2);
   };
 
   if (!cliente) return <div className="container"><p>Cargando cliente...</p></div>;
@@ -53,33 +59,45 @@ export default function ClientDetailPage() {
           <div className="detail-grid">
             <div className="metric-card">
               <p className="label">Saldo anterior</p>
-              <p className="value">{cliente.saldoAnterior}</p>
+              <p className="value">{formatNumber(cliente.saldoAnterior)}</p>
             </div>
             <div className="metric-card">
               <p className="label">Monto compras</p>
-              <p className="value">{cliente.montoCompras}</p>
+              <p className="value">{formatNumber(cliente.montoCompras)}</p>
             </div>
             <div className="metric-card">
               <p className="label">Pago realizado</p>
-              <p className="value">{cliente.pagoRealizado}</p>
+              <p className="value">{formatNumber(cliente.pagoRealizado)}</p>
             </div>
             {cliente.resultado && (
               <>
-                <div className="metric-card highlight">
-                  <p className="label">Saldo actual</p>
-                  <p className="value">{cliente.resultado.saldoActual}</p>
+                <div className="metric-card">
+                  <p className="label">Saldo base</p>
+                  <p className="value">{formatNumber(cliente.resultado.saldoBase)}</p>
                 </div>
                 <div className="metric-card">
-                  <p className="label">Interés</p>
-                  <p className="value">{cliente.resultado.interes}</p>
+                  <p className="label">Pago mínimo base (15%)</p>
+                  <p className="value">{formatNumber(cliente.resultado.pagoMinimoBase)}</p>
+                </div>
+                <div className="metric-card">
+                  <p className="label">Interés (12%)</p>
+                  <p className="value">{formatNumber(cliente.resultado.interes)}</p>
                 </div>
                 <div className="metric-card">
                   <p className="label">Multa</p>
-                  <p className="value">{cliente.resultado.multa}</p>
+                  <p className="value">{formatNumber(cliente.resultado.multa)}</p>
+                </div>
+                <div className="metric-card highlight">
+                  <p className="label">Saldo actual</p>
+                  <p className="value">{formatNumber(cliente.resultado.saldoActual)}</p>
                 </div>
                 <div className="metric-card">
-                  <p className="label">Pago mínimo</p>
-                  <p className="value">{cliente.resultado.pagoMinimo}</p>
+                  <p className="label">Pago mínimo (15%)</p>
+                  <p className="value">{formatNumber(cliente.resultado.pagoMinimo)}</p>
+                </div>
+                <div className="metric-card">
+                  <p className="label">Pago sin intereses</p>
+                  <p className="value">{formatNumber(cliente.resultado.pagoNoIntereses)}</p>
                 </div>
               </>
             )}

@@ -76,6 +76,12 @@ export default function ClientForm({ onCreated, editId, initial, onUpdated, onCa
     try {
       if (editId) {
         await updateClient(editId, payload);
+        // Recalcular después de actualizar para reflejar nuevos valores
+        try {
+          await calculateClient(editId);
+        } catch (calcErr) {
+          console.error('Error al recalcular después de actualizar cliente', calcErr);
+        }
         if (onUpdated) onUpdated();
       } else {
         // Crear cliente
@@ -111,9 +117,18 @@ export default function ClientForm({ onCreated, editId, initial, onUpdated, onCa
       <input name="telefono" placeholder="Teléfono" value={form.telefono} onChange={onChange} />
       <input name="direccion" placeholder="Dirección" value={form.direccion} onChange={onChange} />
       <div className="row">
-        <input name="saldoAnterior" placeholder="Saldo anterior" value={form.saldoAnterior} onChange={onChange} type="number" />
-        <input name="montoCompras" placeholder="Monto compras" value={form.montoCompras} onChange={onChange} type="number" />
-        <input name="pagoRealizado" placeholder="Pago realizado" value={form.pagoRealizado} onChange={onChange} type="number" />
+        <div className="input-group">
+          <label className="input-label">Saldo anterior</label>
+          <input name="saldoAnterior" placeholder="0" value={form.saldoAnterior} onChange={onChange} type="number" />
+        </div>
+        <div className="input-group">
+          <label className="input-label">Monto compras</label>
+          <input name="montoCompras" placeholder="0" value={form.montoCompras} onChange={onChange} type="number" />
+        </div>
+        <div className="input-group">
+          <label className="input-label">Pago realizado</label>
+          <input name="pagoRealizado" placeholder="0" value={form.pagoRealizado} onChange={onChange} type="number" />
+        </div>
       </div>
       <div style={{ display: 'flex', gap: 8 }}>
         <button className="btn primary" type="submit">{editId ? 'Actualizar cliente' : 'Crear cliente'}</button>
